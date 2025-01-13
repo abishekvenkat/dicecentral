@@ -22,60 +22,14 @@ function rollMultipleDice(diceType, numDice) {
   return rolls;
 }
 
-const swaggerDocument = {
-  openapi: '3.0.0',
-  info: {
-    title: 'Dice Central API',
-    version: '1.0.0',
-    description: 'An API for rolling different types of dice with probability calculations'
-  },
-  paths: {
-    '/roll': {
-      get: {
-        summary: 'Roll dice',
-        parameters: [
-          {
-            name: 'diceType',
-            in: 'query',
-            required: true,
-            schema: {
-              type: 'integer',
-              enum: VALID_DICE
-            },
-            description: 'Number of sides on the die (4, 6, 8, 10, 12, 20, or 100)'
-          },
-          {
-            name: 'numDice',
-            in: 'query',
-            required: false,
-            schema: {
-              type: 'integer',
-              default: 1,
-              minimum: 1
-            },
-            description: 'Number of dice to roll (defaults to 1)'
-          }
-        ],
-        responses: {
-          '200': {
-            description: 'Successful roll',
-            content: {
-              'application/json': {
-                example: {
-                  diceType: 6,
-                  numDice: 2,
-                  rolls: [4, 5],
-                  total: 9
-                }
-              }
-            }
-          },
-          '400': {
-            description: 'Invalid input parameters'
-          }
-        }
-      }
-    }
+const swaggerDocument = YAML.load('./swagger.yaml');
+
+const swaggerOptions = {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: "Dice Central API Documentation",
+  swaggerOptions: {
+    url: "/swagger.yaml",
+    baseUrl: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'
   }
 };
 
@@ -83,7 +37,7 @@ app.get('/', (req, res) => {
   res.redirect('/api-docs');
 });
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
 
 app.get('/roll', (req, res) => {
   const diceType = parseInt(req.query.diceType);
