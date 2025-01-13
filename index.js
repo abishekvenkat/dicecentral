@@ -27,7 +27,7 @@ function rollMultipleDice(diceType, numDice) {
 }
 
 const swaggerOptions = {
-  customCss: '.swagger-ui .topbar { display: none }',
+  customCss: CSS_URL,
   customSiteTitle: "Dice Central API Documentation",
   swaggerOptions: {
     url: "/swagger.yaml",
@@ -39,7 +39,7 @@ app.get('/', (req, res) => {
   res.redirect('/api-docs');
 });
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions, { customCssUrl: CSS_URL }));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
 
 app.get('/roll', (req, res) => {
   const diceType = parseInt(req.query.diceType);
