@@ -17,12 +17,7 @@ const swaggerDocument = {
   },
   servers: [
     {
-      url: "https://dicecentral.vercel.app",
-      description: "Production server"
-    },
-    {
-      url: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${port}`,
-      description: "Development server"
+      url: process.env.VERCEL_URL ? `https://dicecentral.vercel.app` : `http://localhost:${port}`,
     }
   ],
   paths: {
