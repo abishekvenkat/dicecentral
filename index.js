@@ -1,13 +1,14 @@
+// index.js
 const express = require('express');
+const cors = require('cors');
 const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-const cors = require('cors');
 app.use(cors());
 
-// Define OpenAPI documentation as a JavaScript object (embedded instead of YAML)
+// OpenAPI documentation
 const swaggerDocument = {
   openapi: "3.0.0",
   info: {
@@ -17,7 +18,7 @@ const swaggerDocument = {
   },
   servers: [
     {
-      url: "/",
+      url: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${port}`,
     },
   ],
   paths: {
@@ -76,65 +77,44 @@ const swaggerDocument = {
   },
 };
 
-app.get('/api-docs', (req, res) => {
-  res.send(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Dice Central API Documentation</title>
-      <script src="https://cdn.jsdelivr.net/npm/redoc@2.0.0-rc.70/bundles/redoc.standalone.js"></script>
-    </head>
-    <body>
-      <redoc spec-url="/swagger.json"></redoc>
-    </body>
-    </html>
-  `);
-});
-
-// Serve the Swagger documentation in JSON format
+// Serve OpenAPI spec
 app.get('/swagger.json', (req, res) => {
   res.json(swaggerDocument);
 });
 
-// Main route to redirect to API docs
-app.get('/', (req, res) => {
-  res.redirect('/api-docs');
-});
+// Serve static files from the public directory
+app.use(express.static('public'));
 
-// Example dice roll endpoint
+// Implement the roll endpoint
 app.get('/roll', (req, res) => {
   const diceType = parseInt(req.query.diceType);
   const numDice = parseInt(req.query.numDice) || 1;
-
-  const VALID_DICE = [4, 6, 8, 10, 12, 20, 100];
-  if (!VALID_DICE.includes(diceType)) {
-    return res.status(400).json({
-      error: `Invalid dice type. Supported types are: ${VALID_DICE.join(', ')}`
-    });
+  
+  if (!swaggerDocument.paths['/roll'].get.parameters[0].schema.enum.includes(diceType)) {
+    return res.status(400).json({ error: 'Invalid dice type' });
   }
-
+  
   if (numDice < 1) {
-    return res.status(400).json({
-      error: 'Number of dice must be at least 1'
-    });
+    return res.status(400).json({ error: 'Number of dice must be at least 1' });
   }
-
-  const rolls = [];
-  for (let i = 0; i < numDice; i++) {
-    rolls.push(Math.floor(Math.random() * diceType) + 1);
-  }
-
-  const total = rolls.reduce((sum, roll) => sum + roll, 0);
-
+  
+  const rolls = Array.from({ length: numDice }, () => 
+    Math.floor(Math.random() * diceType) + 1
+  );
+  
   res.json({
     diceType,
     numDice,
     rolls,
-    total
+    total: rolls.reduce((a, b) => a + b, 0)
   });
 });
 
-// Start the server
+// Serve the main page
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 app.listen(port, () => {
-  console.log(`Dice API running on http://localhost:${port}`);
+  console.log(`Server running on port ${port}`);
 });

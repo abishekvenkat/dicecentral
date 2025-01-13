@@ -6,14 +6,21 @@
       "use": "@vercel/node"
     },
     {
-      "src": "swagger.yaml",
+      "src": "public/**",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/swagger.yaml",
-      "dest": "/swagger.yaml"
+      "src": "/swagger.json",
+      "dest": "index.js"
+    },
+    {
+      "src": "/roll",
+      "dest": "index.js"
+    },
+    {
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
