@@ -7,6 +7,8 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.static('public'));
+const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css";
+
 
 const swaggerDocument = YAML.load(path.join(__dirname, 'public/swagger.yaml'));
 
@@ -37,7 +39,7 @@ app.get('/', (req, res) => {
   res.redirect('/api-docs');
 });
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions, { customCssUrl: CSS_URL }));
 
 app.get('/roll', (req, res) => {
   const diceType = parseInt(req.query.diceType);
