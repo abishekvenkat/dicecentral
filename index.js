@@ -6,15 +6,14 @@ const path = require('path');
 const app = express();
 const port = 3000;
 
-// Dice types supported by the API
+app.use(express.static('public'));
+
 const VALID_DICE = [4, 6, 8, 10, 12, 20, 100];
 
-// Function to generate a random number between 1 and max
 function rollDie(max) {
   return Math.floor(Math.random() * max) + 1;
 }
 
-// Function to roll multiple dice
 function rollMultipleDice(diceType, numDice) {
   const rolls = [];
   for (let i = 0; i < numDice; i++) {
@@ -23,7 +22,6 @@ function rollMultipleDice(diceType, numDice) {
   return rolls;
 }
 
-// API Documentation
 const swaggerDocument = {
   openapi: '3.0.0',
   info: {
@@ -81,20 +79,16 @@ const swaggerDocument = {
   }
 };
 
-// Serve API documentation at root
 app.get('/', (req, res) => {
   res.redirect('/api-docs');
 });
 
-// Mount Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Roll endpoint
 app.get('/roll', (req, res) => {
   const diceType = parseInt(req.query.diceType);
   const numDice = parseInt(req.query.numDice) || 1;
 
-  // Validate input
   if (!VALID_DICE.includes(diceType)) {
     return res.status(400).json({
       error: `Invalid dice type. Supported types are: ${VALID_DICE.join(', ')}`
@@ -107,7 +101,6 @@ app.get('/roll', (req, res) => {
     });
   }
 
-  // Perform the roll
   const rolls = rollMultipleDice(diceType, numDice);
   const total = rolls.reduce((sum, roll) => sum + roll, 0);
 
