@@ -25,8 +25,9 @@ function rollMultipleDice(diceType, numDice) {
 }
 
 app.get('/swagger.yaml', (req, res) => {
-  res.type('application/yaml');
-  res.sendFile(path.join(__dirname, 'public/swagger.yaml'));
+  res.sendFile(path.join(__dirname, 'public/swagger.yaml'), {
+    headers: { 'Content-Type': 'application/yaml' },
+  });
 });
 
 app.get('/api-docs', (req, res) => {
