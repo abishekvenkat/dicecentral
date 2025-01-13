@@ -1,50 +1,90 @@
-## Dice Central API
-A simple REST API for rolling various types of polyhedral dice, built with Express.js.
+# DiceCentral API 🎲
 
-#### Features
-- Roll different types of dice (d4, d6, d8, d10, d12, d20, d100)
-- Roll multiple dice at once
-- API documentation with Swagger UI
-- JSON responses with roll results and totals
+A modern, RESTful API for rolling various types of polyhedral dice. Perfect for digital tabletop games, random number generation, or any application needing dice rolling functionality.
 
+## 🌟 Features
 
-#### Installation
+- Roll different types of polyhedral dice (d4, d6, d8, d10, d12, d20, d100)
+- Support for rolling multiple dice at once
+- Clean, interactive API documentation using Stoplight Elements
+- JSON responses with individual rolls and totals
+- CORS enabled for cross-origin requests
+- Production-ready with Vercel deployment support
 
-##### Usage
+## 🚀 Live Demo
 
-Start the server:
+Visit [https://dicecentral.vercel.app](https://dicecentral.vercel.app) to try out the API and view the interactive documentation.
 
-The server will run on port 3000. Visit http://localhost:3000 to view the Swagger API documentation.
+## 📖 API Usage
 
-***API Endpoints***
+### Roll Endpoint
 
-***GET /roll***
-
-Roll one or more dice of a specific type.
-
-Query Parameters:
-
-- diceType (required): Number of sides on the die (4, 6, 8, 10, 12, 20, or 100)
-- numDice (optional): Number of dice to roll (default: 1)
-
-Example Request:
-
-```
-GET /roll?diceType=6&numDice=2
+```http
+GET /roll?diceType={type}&numDice={count}
 ```
 
-Example Response:
+#### Parameters
 
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| diceType | integer | Yes | Number of sides on the die (4, 6, 8, 10, 12, 20, or 100) |
+| numDice | integer | No | Number of dice to roll (default: 1) |
+
+#### Example Request
+
+```http
+GET /roll?diceType=20&numDice=2
 ```
+
+#### Example Response
+
+```json
 {
-  "diceType": 6,
+  "diceType": 20,
   "numDice": 2,
-  "rolls": [4, 5],
-  "total": 9
+  "rolls": [15, 8],
+  "total": 23
 }
 ```
 
-#### Dependencies
-- express: Web framework
-- swagger-ui-express: API documentation UI
-- yamljs: YAML parser
+## 🛠 Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/abishekvenkat/dicecentral.git
+cd dicecentral
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Start the development server:
+```bash
+npm start
+```
+
+The API will be available at `http://localhost:3000`
+
+## 📦 Project Structure
+
+```
+dicecentral/
+├── index.js          # Main server file
+├── public/           # Static files
+│   ├── index.html    # API documentation UI
+│   └── dice-icon.svg # App icon
+├── vercel.json       # Vercel deployment configuration
+└── package.json      # Project dependencies and scripts
+```
+
+## 🚀 Deployment
+
+This API is configured for deployment on Vercel. To deploy your own instance:
+
+1. Fork this repository
+2. Connect your fork to Vercel
+3. Deploy!
+
+No additional configuration is needed as the `vercel.json` file handles all deployment settings.

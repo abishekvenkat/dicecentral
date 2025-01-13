@@ -5,12 +5,17 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://unpkg.com/@stoplight/elements/styles.min.css">
+    <link rel="icon" type="image/svg+xml" href="/public/images/favicon.svg">
   </head>
   <body>
     <elements-api
       apiDescriptionUrl="/swagger.json"
       router="hash"
       layout="sidebar"
+      hideInternal="true"
+      hideTryIt="false"
+      hideExport="true"
+      hideSchemas="true"
     />
     <script src="https://unpkg.com/@stoplight/elements/web-components.min.js"></script>
   </body>
