@@ -1,4 +1,3 @@
-// index.js
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -18,8 +17,13 @@ const swaggerDocument = {
   },
   servers: [
     {
-      url: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${port}`,
+      url: "https://dicecentral.vercel.app",
+      description: "Production server"
     },
+    {
+      url: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${port}`,
+      description: "Development server"
+    }
   ],
   paths: {
     "/roll": {
