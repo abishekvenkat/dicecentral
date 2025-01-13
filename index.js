@@ -7,8 +7,6 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.static('public'));
-const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css";
-
 
 const swaggerDocument = YAML.load(path.join(__dirname, 'public/swagger.yaml'));
 
@@ -26,20 +24,36 @@ function rollMultipleDice(diceType, numDice) {
   return rolls;
 }
 
-const swaggerOptions = {
-  customCss: CSS_URL,
-  customSiteTitle: "Dice Central API Documentation",
-  swaggerOptions: {
-    url: "/swagger.yaml",
-    baseUrl: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'
-  }
-};
+app.get('/swagger.yaml', (req, res) => {
+  res.type('application/yaml');
+  res.sendFile(path.join(__dirname, 'public/swagger.yaml'));
+});
+
+app.get('/api-docs', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Dice Central API Documentation</title>
+      <script src="https://unpkg.com/@stoplight/elements/web-components.min.js"></script>
+      <link rel="stylesheet" href="https://unpkg.com/@stoplight/elements/styles.min.css">
+    </head>
+    <body>
+      <elements-api-documentation
+        apiDescriptionUrl="/swagger.yaml"
+        router="hash"
+        layout="sidebar"
+      ></elements-api-documentation>
+    </body>
+    </html>
+  `);
+});
 
 app.get('/', (req, res) => {
   res.redirect('/api-docs');
 });
-
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
 
 app.get('/roll', (req, res) => {
   const diceType = parseInt(req.query.diceType);
