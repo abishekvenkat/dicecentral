@@ -1,35 +1,79 @@
 const express = require('express');
-const swaggerUi = require('swagger-ui-express');
-const YAML = require('yamljs');
 const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(express.static('public'));
+// Define OpenAPI documentation as a JavaScript object (embedded instead of YAML)
+const swaggerDocument = {
+  openapi: "3.0.0",
+  info: {
+    title: "Dice Central API",
+    description: "A simple API for rolling various types of dice",
+    version: "1.0.0",
+  },
+  servers: [
+    {
+      url: "/",
+    },
+  ],
+  paths: {
+    "/roll": {
+      get: {
+        summary: "Roll dice",
+        parameters: [
+          {
+            in: "query",
+            name: "diceType",
+            required: true,
+            schema: {
+              type: "integer",
+              enum: [4, 6, 8, 10, 12, 20, 100],
+            },
+            description: "Number of sides on the die",
+          },
+          {
+            in: "query",
+            name: "numDice",
+            required: false,
+            schema: {
+              type: "integer",
+              minimum: 1,
+              default: 1,
+            },
+            description: "Number of dice to roll",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Successful roll",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    diceType: { type: "integer" },
+                    numDice: { type: "integer" },
+                    rolls: {
+                      type: "array",
+                      items: { type: "integer" },
+                    },
+                    total: { type: "integer" },
+                  },
+                },
+              },
+            },
+          },
+          "400": {
+            description: "Invalid input parameters",
+          },
+        },
+      },
+    },
+  },
+};
 
-const swaggerDocument = YAML.load(path.join(__dirname, 'public/swagger.yaml'));
-
-const VALID_DICE = [4, 6, 8, 10, 12, 20, 100];
-
-function rollDie(max) {
-  return Math.floor(Math.random() * max) + 1;
-}
-
-function rollMultipleDice(diceType, numDice) {
-  const rolls = [];
-  for (let i = 0; i < numDice; i++) {
-    rolls.push(rollDie(diceType));
-  }
-  return rolls;
-}
-
-app.get('/swagger.yaml', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/swagger.yaml'), {
-    headers: { 'Content-Type': 'application/yaml' },
-  });
-});
-
+// Serve the documentation using Stoplight Elements UI
 app.get('/api-docs', (req, res) => {
   res.send(`
     <!DOCTYPE html>
@@ -43,7 +87,7 @@ app.get('/api-docs', (req, res) => {
     </head>
     <body>
       <elements-api-documentation
-        apiDescriptionUrl="/swagger.yaml"
+        apiDescriptionUrl="/swagger.json"
         router="hash"
         layout="sidebar"
       ></elements-api-documentation>
@@ -52,14 +96,22 @@ app.get('/api-docs', (req, res) => {
   `);
 });
 
+// Serve the Swagger documentation in JSON format
+app.get('/swagger.json', (req, res) => {
+  res.json(swaggerDocument);
+});
+
+// Main route to redirect to API docs
 app.get('/', (req, res) => {
   res.redirect('/api-docs');
 });
 
+// Example dice roll endpoint
 app.get('/roll', (req, res) => {
   const diceType = parseInt(req.query.diceType);
   const numDice = parseInt(req.query.numDice) || 1;
 
+  const VALID_DICE = [4, 6, 8, 10, 12, 20, 100];
   if (!VALID_DICE.includes(diceType)) {
     return res.status(400).json({
       error: `Invalid dice type. Supported types are: ${VALID_DICE.join(', ')}`
@@ -72,7 +124,11 @@ app.get('/roll', (req, res) => {
     });
   }
 
-  const rolls = rollMultipleDice(diceType, numDice);
+  const rolls = [];
+  for (let i = 0; i < numDice; i++) {
+    rolls.push(Math.floor(Math.random() * diceType) + 1);
+  }
+
   const total = rolls.reduce((sum, roll) => sum + roll, 0);
 
   res.json({
@@ -83,10 +139,7 @@ app.get('/roll', (req, res) => {
   });
 });
 
-if (process.env.VERCEL) {
-  module.exports = app;
-} else {
-  app.listen(port, () => {
-    console.log(`Dice API running successfully`);
-  });
-}
+// Start the server
+app.listen(port, () => {
+  console.log(`Dice API running on http://localhost:${port}`);
+});
