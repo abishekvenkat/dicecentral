@@ -8,6 +8,8 @@ const port = process.env.PORT || 3000;
 
 app.use(express.static('public'));
 
+const swaggerDocument = YAML.load(path.join(__dirname, 'public/swagger.yaml'));
+
 const VALID_DICE = [4, 6, 8, 10, 12, 20, 100];
 
 function rollDie(max) {
@@ -21,8 +23,6 @@ function rollMultipleDice(diceType, numDice) {
   }
   return rolls;
 }
-
-const swaggerDocument = YAML.load('./swagger.yaml');
 
 const swaggerOptions = {
   customCss: '.swagger-ui .topbar { display: none }',
